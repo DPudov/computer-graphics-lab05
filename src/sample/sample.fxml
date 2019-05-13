@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
+          prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="sample.Controller">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="353.0" minWidth="10.0" prefWidth="353.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="376.0" minWidth="10.0" prefWidth="346.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <VBox prefHeight="589.0" prefWidth="246.0" GridPane.columnIndex="2" GridPane.rowSpan="4">
+        <Separator prefWidth="200.0"/>
+        <Separator prefWidth="200.0"/>
+        <Label fx:id="cursorLabel" prefHeight="34.0" prefWidth="326.0" textAlignment="CENTER" wrapText="true">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+        </Label>
+        <Separator prefWidth="200.0"/>
+        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="15.0" prefWidth="331.0"
+               text="Выбрать цвет границы">
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+            <font>
+                <Font name="SansSerif Regular" size="17.0"/>
+            </font>
+        </Label>
+        <ColorPicker fx:id="boundPicker" editable="true" prefHeight="23.0" prefWidth="326.0"
+                     promptText="Выбор цвета">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+        </ColorPicker>
+        <Separator prefWidth="200.0"/>
+        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="16.0" prefWidth="351.0"
+               text="Выбрать цвет заполнения">
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+            <font>
+                <Font name="SansSerif Regular" size="17.0"/>
+            </font>
+        </Label>
+        <ColorPicker fx:id="fillPicker" prefHeight="23.0" prefWidth="326.0">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+        </ColorPicker>
+        <Separator prefWidth="200.0"/>
+        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="16.0" prefWidth="351.0"
+               text="Выбрать цвет фона">
+            <font>
+                <Font name="SansSerif Regular" size="17.0"/>
+            </font>
+        </Label>
+        <ColorPicker fx:id="backgroundPicker" prefHeight="23.0" prefWidth="326.0">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+        </ColorPicker>
+        <Separator prefWidth="200.0"/>
+        <Label alignment="CENTER" prefHeight="15.0" prefWidth="345.0" text="Задержка ">
+            <font>
+                <Font size="17.0"/>
+            </font>
+        </Label>
+        <Slider/>
+        <HBox prefHeight="23.0" prefWidth="346.0">
+            <Label prefHeight="15.0" prefWidth="183.0" text="0 ms"/>
+            <Label alignment="CENTER_RIGHT" prefHeight="15.0" prefWidth="167.0" text="100ms"/>
+        </HBox>
+        <Button fx:id="clearAllButton" mnemonicParsing="false" prefHeight="32.0" prefWidth="353.0"
+                text="Очистить холст">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+            <font>
+                <Font size="17.0"/>
+            </font>
+        </Button>
+        <HBox prefHeight="51.0" prefWidth="346.0">
+            <VBox prefHeight="31.0" prefWidth="187.0">
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </HBox.margin>
+                <Label alignment="CENTER" prefHeight="15.0" prefWidth="149.0" text="X"/>
+                <TextField fx:id="inputXField" prefHeight="25.0" prefWidth="171.0" promptText="Введите x"/>
+            </VBox>
+            <VBox prefHeight="51.0" prefWidth="194.0">
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </HBox.margin>
+                <Label alignment="CENTER" prefHeight="15.0" prefWidth="149.0" text="Y"/>
+                <TextField fx:id="inputYField" promptText="Введите y"/>
+            </VBox>
+        </HBox>
+        <Button fx:id="addPointButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="355.0"
+                text="Добавить точку">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+            <font>
+                <Font size="17.0"/>
+            </font>
+        </Button>
+        <Button fx:id="fillPolygonButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="355.0"
+                text="Заполнить многоугольник">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+            <font>
+                <Font size="17.0"/>
+            </font>
+        </Button>
+        <Button fx:id="clojureButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="355.0"
+                text="Замкнуть многоугольник">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+            <font>
+                <Font size="17.0"/>
+            </font>
+        </Button>
+    </VBox>
+    <Canvas fx:id="canvas" height="900.0" width="900.0" GridPane.columnSpan="2" GridPane.halignment="LEFT"
+            GridPane.hgrow="ALWAYS" GridPane.rowSpan="4" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS"/>
+</GridPane>
