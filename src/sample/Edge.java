@@ -3,6 +3,8 @@ package sample;
 public class Edge {
     private Point begin;
     private Point end;
+    private boolean beginInit;
+    private boolean endInit;
 
     public Edge(Point begin, Point end) {
         this.begin = begin;
@@ -27,8 +29,6 @@ public class Edge {
         this.end = end;
     }
 
-    private boolean beginInit;
-    private boolean endInit;
 
     public boolean isBeginInit() {
         return beginInit;
@@ -50,4 +50,10 @@ public class Edge {
         setEndInit(false);
         setBeginInit(false);
     }
+
+    public boolean isHorizontal() {
+        return getEnd().getY() == getBegin().getY();
+    }
+
+
 }

@@ -76,7 +76,7 @@
                 <Font size="17.0"/>
             </font>
         </Label>
-        <Slider/>
+        <Slider fx:id="delaySlider"/>
         <HBox prefHeight="23.0" prefWidth="346.0">
             <Label prefHeight="15.0" prefWidth="183.0" text="0 ms"/>
             <Label alignment="CENTER_RIGHT" prefHeight="15.0" prefWidth="167.0" text="100ms"/>

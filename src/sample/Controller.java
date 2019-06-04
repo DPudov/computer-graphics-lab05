@@ -2,14 +2,11 @@ package sample;
 
 // Алгоритм с упорядоченным списком рёбер
 
+import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.image.PixelWriter;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -44,7 +41,10 @@ public class Controller {
     @FXML
     Button clojureButton;
 
-
+    private final LinkedList<Point> allVertices = new LinkedList<>();
+    @FXML
+    Slider delaySlider;
+    AnimationTimer loop;
     private final LinkedList<Edge> allEdges = new LinkedList<>();
     private final LinkedList<Edge> currentPolygon = new LinkedList<>();
     private final ArrayList<Polygon> polygons = new ArrayList<>();
@@ -55,8 +55,13 @@ public class Controller {
         setupColors();
         setupCanvasListeners();
 
-        fillPolygonButton.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            fillPolygon();
+        fillPolygonButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            try {
+                double delay = delaySlider.getValue();
+                fillPolygon(delay);
+            } catch (Exception e) {
+                System.out.println("Wrong values!");
+            }
         });
 
         clojureButton.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -65,6 +70,15 @@ public class Controller {
 
         clearAllButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             clearCanvas();
+            clearData();
+        });
+
+        addPointButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            try {
+                addPoint(Integer.parseInt(inputXField.getText()), Integer.parseInt(inputYField.getText()));
+            } catch (NumberFormatException e) {
+                System.out.println("Wrong values!");
+            }
         });
     }
 
@@ -90,6 +104,10 @@ public class Controller {
                 // замкнуть многоугольник
                 closePolygon();
             }
+
+            if (b == MouseButton.PRIMARY) {
+                allVertices.add(new Point((int) e.getX(), (int) e.getY()));
+            }
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, mouseEvent -> {
@@ -99,7 +117,7 @@ public class Controller {
 
     private void setupColors() {
         boundPicker.setValue(Color.BLACK);
-        fillPicker.setValue(Color.WHITE);
+        fillPicker.setValue(Color.LIME);
         backgroundPicker.setValue(Color.WHITE);
         clearCanvas();
     }
@@ -108,20 +126,47 @@ public class Controller {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(backgroundPicker.getValue());
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+
+    private void clearData() {
         currentEdge.clear();
         polygons.clear();
         currentPolygon.clear();
         allEdges.clear();
+        allVertices.clear();
     }
 
-    private void fillPolygon() {
-// todo заливка
+    private void fillPolygon(double delay) {
+        clearCanvas();
+        Point topLeft = getMinimumPoint();
+        Point bottomRight = getMaximumPoint();
+        if (topLeft != null && bottomRight != null) {
+            performFill(delay);
+        }
+        redrawPolygons();
+    }
+
+    private void redrawPolygons() {
+        for (Polygon p : polygons) {
+            for (Edge e : p.getEdges()) {
+                drawLine(e);
+            }
+        }
+        for (Edge e : new Polygon(currentPolygon).getEdges()) {
+            drawLine(e);
+        }
+    }
+
+    private void performFill(double delay) {
+        PolygonFill fill = new PolygonFill(fillPicker.getValue(), polygons);
+        fill.render(canvas.getGraphicsContext2D(), delay);
     }
 
     private void closePolygon() {
         if (currentPolygon.size() > 1) {
             addPoint(currentPolygon.get(0).getBegin().getX(), currentPolygon.get(0).getBegin().getY());
-            polygons.add(new Polygon(currentPolygon));
+            LinkedList<Edge> copy = new LinkedList<>(currentPolygon);
+            polygons.add(new Polygon(copy));
             currentPolygon.clear();
             currentEdge.setBeginInit(false);
             currentEdge.setEndInit(false);
@@ -153,9 +198,11 @@ public class Controller {
             currentEdge.setBegin(new Point(x, y));
             currentEdge.setBeginInit(true);
         } else if (!currentEdge.isEndInit()) {
-            currentEdge.setEnd(new Point(x, y));
-            currentEdge.setEndInit(true);
-            doUpdate();
+            if (!(currentEdge.getBegin().getX() == x && currentEdge.getBegin().getY() == y)) {
+                currentEdge.setEnd(new Point(x, y));
+                currentEdge.setEndInit(true);
+                doUpdate();
+            }
         } else {
             currentEdge.setBegin(currentEdge.getEnd());
             currentEdge.setEnd(new Point(x, y));
@@ -164,9 +211,10 @@ public class Controller {
     }
 
     private void doUpdate() {
-        allEdges.add(currentEdge);
-        currentPolygon.add(currentEdge);
-        drawLine(currentEdge);
+        Edge copy = new Edge(currentEdge.getBegin(), currentEdge.getEnd());
+        allEdges.add(copy);
+        currentPolygon.add(copy);
+        drawLine(copy);
         currentEdge = new Edge(new Point(currentEdge.getBegin()), currentEdge.getEnd());
         currentEdge.setBeginInit(true);
         currentEdge.setEndInit(true);
@@ -179,37 +227,77 @@ public class Controller {
     }
 
     private void drawLine(int xBegin, int yBegin, int xEnd, int yEnd) {
-        DigitalDiffAnalyzeDraw(xBegin, yBegin, xEnd, yEnd, boundPicker.getValue());
+        LineDrawer.DigitalDiffAnalyzeDraw(canvas, xBegin, yBegin, xEnd, yEnd, boundPicker.getValue());
     }
 
-    private static boolean isPoint(int x0, int y0, int xe, int ye) {
-        return x0 == xe && y0 == ye;
-    }
 
-    private static int round(float value) {
-        return (int) (value + 0.5f);
-    }
-
-    private void DigitalDiffAnalyzeDraw(int x0, int y0, int xe, int ye, Color color) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        PixelWriter writer = gc.getPixelWriter();
-        if (isPoint(x0, y0, xe, ye)) {
-            writer.setColor(x0, y0, color);
-            return;
+    private Point getMaximumPoint() {
+        if (!allEdges.isEmpty()) {
+            int maxX = Integer.MIN_VALUE;
+            int maxY = Integer.MIN_VALUE;
+            for (Edge edge : allEdges) {
+                Point currentBegin = edge.getBegin();
+                Point currentEnd = edge.getEnd();
+                int x0 = currentBegin.getX();
+                int y0 = currentBegin.getY();
+                int xe = currentEnd.getX();
+                int ye = currentEnd.getY();
+                maxX = max(x0, xe, maxX);
+                maxY = max(y0, ye, maxY);
+            }
+            return new Point(maxX + 10, maxY + 10);
         }
+        return null;
+    }
 
-        int diffX = Math.abs(xe - x0);
-        int diffY = Math.abs(ye - y0);
-        int len = diffX > diffY ? diffX : diffY;
+    private Point getMinimumPoint() {
+        if (!allEdges.isEmpty()) {
+            int minX = Integer.MAX_VALUE;
+            int minY = Integer.MAX_VALUE;
+            for (Edge edge : allEdges) {
+                Point currentBegin = edge.getBegin();
+                Point currentEnd = edge.getEnd();
+                int x0 = currentBegin.getX();
+                int y0 = currentBegin.getY();
+                int xe = currentEnd.getX();
+                int ye = currentEnd.getY();
+                minX = min(x0, xe, minX);
+                minY = min(y0, ye, minY);
+            }
+            return new Point(minX - 10, minY - 10);
+        }
+        return null;
+    }
 
-        float dX = ((float) (xe - x0)) / len;
-        float dY = ((float) (ye - y0)) / len;
-        float curX = x0;
-        float curY = y0;
-        for (int i = 1; i < len + 1; i++) {
-            writer.setColor(round(curX), round(curY), color);
-            curX += dX;
-            curY += dY;
+    private int max(int a, int b, int c) {
+        if (a > b) {
+            if (a > c) {
+                return a;
+            } else {
+                return c;
+            }
+        } else {
+            if (b > c) {
+                return b;
+            } else {
+                return c;
+            }
+        }
+    }
+
+    private int min(int a, int b, int c) {
+        if (a < b) {
+            if (a < c) {
+                return a;
+            } else {
+                return c;
+            }
+        } else {
+            if (b < c) {
+                return b;
+            } else {
+                return c;
+            }
         }
     }
 }
